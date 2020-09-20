@@ -5,10 +5,16 @@ ws.onmessage = (msg) => {
 };
 
 const renderMessages = (data) => {
-  const html = data
-    .map((message) => `<h3>${message.author}: </h3> <p>${message.message}</p>`)
-    .join(" ");
-  document.getElementById("messages").innerHTML = html;
+  if (!data[0]["author"]) {
+    document.getElementById("err").innerHTML = `<h5> ${data}</h5>`;
+  } else {
+    const html = data
+      .map(
+        (message) => `<h3>${message.author}: </h3> <p>${message.message}</p>`
+      )
+      .join(" ");
+    document.getElementById("messages").innerHTML = html;
+  }
 };
 
 const handleSubmit = (evt) => {

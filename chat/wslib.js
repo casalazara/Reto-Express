@@ -1,3 +1,4 @@
+const { string } = require("joi");
 const WebSocket = require("ws");
 const messagePersistence = require("./public/persistence/messagePersistence");
 const clients = [];
@@ -11,7 +12,12 @@ const wsConnection = (server) => {
 
     ws.on("message", (message) => {
       message = JSON.parse(message);
-      messagePersistence.postMessage(message);
+      let x = messagePersistence.postMessage(message);
+      if (x["details"]) {
+        msg = "ERROR " + x.details[0].message;
+        message = JSON.stringify(msg);
+        ws.send(message);
+      }
       sendMessages();
     });
   });
@@ -19,8 +25,14 @@ const wsConnection = (server) => {
 
 const sendMessages = () => {
   clients.forEach((client) => {
-    messages = JSON.stringify(messagePersistence.getMessages());
-    client.send(messages);
+    messagePersistence.getMessages().then((result) => {
+      var array = [];
+      result.forEach((mensaje) => {
+        array.push(mensaje.dataValues);
+      });
+      messages = JSON.stringify(array);
+      client.send(messages);
+    });
   });
 };
 
